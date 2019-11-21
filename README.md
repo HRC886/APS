@@ -9,3 +9,6 @@ Toda a parte visual do front-end foi feita com html, CSS e Framework fornecido p
 
 Neste módulo está a parte de cadastro da aplicação, que pede e-mail como validação para todo o decorrer das ações
 
+#Commit Plantio
+
+Esse arquivo relata a inserção de árvores no sistema, onde os dados do usuário está na memória local do sistema, para podermos distinguir qual usuário está realizando a operação, para a inserção das árvores, é necessário fornecer os seguintes dados: Nome da árvores, local onde a árvore será plantada, e a data do plantio.
