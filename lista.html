@@ -1,0 +1,153 @@
+<html>
+<head>
+<title>Lignum</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3pro.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="logout.js"></script>
+<style>
+	.btn {
+		background-color:transparent;
+		color:white
+	}
+	
+	.btn:hover {
+		text-shadow: 3px 3px 10px white;
+		cursor:pointer;
+	}
+</style>
+</head>
+<body onload="getArvores ()">
+<nav class="w3-sidebar w3-bar-block w3-card w3-animate-left" id="mySidebar" style="width:100%;max-width:300px;display:none">
+<div class="w3-container">
+  <span onclick="closeSidebar()" class="w3-button w3-display-topright w3-xxlarge">&#9932;</span>
+  <br>
+  <div class="w3-padding w3-center">
+    <img class="w3-image w3-animate-top" width="50%" src="logo.png">
+  </div>
+</div>
+<h3><a class="w3-bar-item w3-button w3-border-bottom" href="registro.html">Novo Plantio</a></h3>
+<h3><a class="w3-bar-item w3-button w3-border-bottom" href="gerencia.html">Minha Floresta</a></h3>
+<h3><a class="w3-bar-item w3-button w3-border-bottom" href="sobre.html">Sobre</a></h3>
+<h3><a class="w3-bar-item w3-button" onclick="logout ()">Sair</a></h3>
+</nav>
+
+<header id="header" class="w3-bar w3-card w3-center" style="background-image:url('grass.jpg');background-repeat: no-repeat;background-size: cover;color:white">
+  <button class="w3-bar-item btn w3-xxlarge" onclick="openSidebar()">&#9776;</button>
+  <h3 class="w3-bar-item">Minha Floresta</h3>
+</header>
+<div id="all" style="width:100%">
+<script>
+	var height = screen.availHeight+"px";
+	document.getElementById('all').style.minHeight = height;
+</script>
+<div id="home" class="w3-container w3-animate-bottom">
+
+<div id="1" class="w3-container w3-center" style="height:400px;margin-top:5%">
+<img id="loadgif" width="20%" src="load.gif">
+<div id="lista" class="w3-margin-top" style="background-color:white;width:100%;height:100%;display:none">
+	<div><h3><b id="categoria"></b></h3></div>
+	<div class="w3-border-bottom" style="width:100%"></div>
+	<label>Total de Árvores: <text id="item"></text><b id="numitems"></b></label>
+	<br><br>
+	<table id="tabela" class="w3-table w3-striped w3-bordered" style="width:100%">
+	<tr class="w3-theme w3-large"><th>Espécie</th><th>Local</th><th>Data</th><th>Desmatar</th><tr>
+	</table>
+</div>
+</div>
+
+</div>
+</div>
+<script>
+var id = sessionStorage.getItem('id');
+var codPlan = [];
+var url = "https://prod-02.southcentralus.logic.azure.com:443/workflows/117d30556f8c493996ed2af359332efd/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=fMDRvshw_9yB0PNQBSa3g6I8Ezrl5wJHtzRmL2DAx2E";
+
+function openSidebar() 
+{
+	//abre o menu lateral
+	document.getElementById("mySidebar").style.display = "block";
+	document.getElementById("all").onclick = function() { closeSidebar() };
+}
+
+function closeSidebar() 
+{
+	//fecha o menu lateral
+	document.getElementById("mySidebar").style.display = "none";
+	document.getElementById("all").onclick = function() { console.log("") };
+}
+
+function getArvores ()
+{
+	//Atribui à variável 'xhr' um objeto do tipo Request
+	var xhr = new XMLHttpRequest();
+	//Inicia o POST
+	xhr.open("POST", url, true);
+	//Insere informações no cabeçalho da chamada
+	xhr.setRequestHeader("Content-Type", "application/json");
+	//Monta a query do banco de dados
+	var query = "Select p.Cod_Plantio, p.Especie_Arvore, p.Cidade, p.Data_Plantio from Plantio p Inner Join Usuario u ON u.Cod_Usu = p.Cod_Usu WHERE p.Cod_Usu = "+id+";";
+	//Atribui à variável 'data' o objeto JSON gerado
+	var data = JSON.stringify({"query" : query});
+	//Envia o POST
+	xhr.send(data);
+	//Chama a função 'confirm' cada vez que o status da solicitação é alterado
+	setTimeout(confirm,2000);
+	function confirm (){
+	//Se o status for igual à HTTP 200
+		if (xhr.status == 200) {
+			var response = JSON.parse(xhr.response);
+			console.log(response);
+			if (JSON.stringify(response) == "{}")
+			{
+				document.getElementById('loadgif').style.display = "none";
+				document.getElementById('1').innerHTML = '<div class="w3-card w3-center" style="width:100%;padding:2%;background-color:white"><b>Sem Floresta :(</b><br><p>Você ainda não começou a sua Plantação</div>';
+			}
+			else
+			{
+				montaTabela (response);
+			}
+		}
+	}
+}
+
+function montaTabela (response)
+{	
+	for (i = 0; i < response.Table1.length; i++) {
+		codPlan[i]=response.Table1[i].Cod_Plantio;
+		document.getElementById("tabela").innerHTML += "<tr><td>"+response.Table1[i].Especie_Arvore+"</td><td>"+response.Table1[i].Cidade+"</td><td>"+convertDate(response.Table1[i].Data_Plantio)+"</td><td><i id='delete' class='w3-text-red fa fa-times w3-large' onclick='remove("+i+")'></i></td></tr>";
+	}
+	document.getElementById("numitems").innerHTML = response.Table1.length;
+	document.getElementById('loadgif').style.display = "none";
+	document.getElementById('lista').style.display = "block";
+}
+
+function convertDate (date)
+{	
+	var data = new Date(Date.parse(date));
+	var newDate = (data.getDate()+"/"+(data.getMonth()+1)+"/"+data.getFullYear()+"");
+	return newDate;
+}
+
+function remove (num)
+{	
+	document.getElementById("delete").disabled = "true";
+	//Atribui à variável 'xhr' um objeto do tipo Request
+	var xhr = new XMLHttpRequest();
+	//Inicia o POST
+	xhr.open("POST", url, true);
+	//Insere informações no cabeçalho da chamada
+	xhr.setRequestHeader("Content-Type", "application/json");
+	//Monta a query do banco de dados
+	var query = "delete from Plantio where Cod_Usu = "+id+" and Cod_Plantio = "+codPlan[num]+";";
+	//Atribui à variável 'data' o objeto JSON gerado
+	var data = JSON.stringify({"query" : query});
+	//Envia o POST
+	xhr.send(data);
+	window.alert("Árvore derrubada </3");
+	setTimeout(function(){ location.reload(true) }, 2000);
+}
+
+</script>
+</body>
+</html>
