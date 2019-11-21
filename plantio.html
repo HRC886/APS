@@ -1,0 +1,144 @@
+<html>
+<head>
+<title>Lignum</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3pro.css">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<script src="logout.js"></script>
+<style>
+	.btn {
+		background-color:transparent;
+		color:white
+	}
+	
+	.btn:hover {
+		text-shadow: 3px 3px 10px white;
+		cursor:pointer;
+	}
+</style>
+</head>
+<!-- DENTRO DOS PARENTESES DO getUserInfo NO onload COLOCAR O NOME DA CATEGORIA >EM MINUSCULO< ENTRE ASPAS SIMPLES CONFORME EXEMPLO ABAIXO: -->
+<body id="background">
+<nav class="w3-sidebar w3-bar-block w3-card w3-animate-left" id="mySidebar" style="width:100%;max-width:300px;display:none">
+<div class="w3-container">
+  <span onclick="closeSidebar()" class="w3-button w3-display-topright w3-xxlarge">&#9932;</span>
+  <br>
+  <div class="w3-padding w3-center">
+    <img class="w3-image w3-animate-top" width="50%" src="logo.png">
+  </div>
+</div>
+<h3><a class="w3-bar-item w3-button w3-border-bottom" href="registro.html">Novo Plantio</a></h3>
+<h3><a class="w3-bar-item w3-button w3-border-bottom" href="gerencia.html">Minha Floresta</a></h3>
+<h3><a class="w3-bar-item w3-button w3-border-bottom" href="sobre.html">Sobre</a></h3>
+<h3><a class="w3-bar-item w3-button" onclick="logout ()">Sair</a></h3>
+</nav>
+
+<header id="header" class="w3-bar w3-card w3-center" style="background-image:url('grass.jpg');background-repeat: no-repeat;background-size: cover;color:white">
+  <button class="w3-bar-item btn w3-xxlarge" onclick="openSidebar()">&#9776;</button>
+  <h3 class="w3-bar-item">Minha Floresta</h3>
+</header>
+<div id="all" style="width:100%">
+<script>
+	var height = screen.availHeight+"px";
+	document.getElementById('all').style.minHeight = height;
+</script>
+<div id="home" class="w3-container w3-animate-bottom" style="width:50%;margin-left:25%;margin-left:25%">
+<div><h3><center><b>Ajude a preservar a natureza!</b></center></h3></div>
+<div><h6><center>Todas as opções devem ser preenchidas</center></h6></div>
+<p></p>
+	
+	<input id="especie" class="w3-input w3-animate-input" style="width:80%;margin:auto" type="text" name="Espécie da árvore a ser plantada" placeholder="Espécie da árvore a ser plantada"> <p>
+	<input id="local" class="w3-input w3-animate-input" style="width:80%;margin:auto" type="text" name="Local onde a árvore será plantada" placeholder="Local onde a árvore será plantada"> <p>
+	<input id="data" class="w3-input w3-animate-input" style="width:80%;margin:auto" type="date" name="Data do plantio" placeholder="Data do plantio"> <p>	
+</select>
+	
+<center><span id="msg" style="color: crimson; font-size:80%" class="w3-animate-opacity"></span>
+	<br>
+	<a id="plantar" class="w3-button w3-round-xxlarge w3-lime w3-card" onclick="checkAll ()">Plantar!</a>
+
+	</div></center>
+	</div>
+</div>
+<div>
+
+<script>
+var dateNow = new Date();
+var id = sessionStorage.getItem('id');
+function openSidebar() 
+{
+	//abre o menu lateral
+	document.getElementById("mySidebar").style.display = "block";
+	document.getElementById("all").onclick = function() { closeSidebar() };
+}
+
+function closeSidebar() 
+{
+	//fecha o menu lateral
+	document.getElementById("mySidebar").style.display = "none";
+	document.getElementById("all").onclick = function() { console.log("") };
+}
+
+function checkAll() {
+	var especie = document.getElementById("especie").value;
+	var local = document.getElementById("local").value;
+	var date = document.getElementById("data").value;
+	if (especie == "" || local == "" || date == "" || Date.parse(date) > dateNow) {
+		window.alert("Entrada inválida, confira e tente novamente")
+	}
+	else {
+		document.getElementById("plantar").innerHTML="Carregando";
+		setTimeout(request,500);
+	}
+}
+	
+function request () {
+	var tries = 0;
+	var especie = document.getElementById("especie").value;
+	var local = document.getElementById("local").value;
+	var date = document.getElementById("data").value;
+	//Atribui à variável 'xhr' um objeto do tipo Request
+	var xhr = new XMLHttpRequest();
+	//Atribui à variável 'url' o link do serviço que receberá a API
+	var url = "https://prod-09.southcentralus.logic.azure.com:443/workflows/ef93a287abb7484a832ca797f4c5d77a/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=P69EG13reJSKVBi7l24XQlDYs-pXN-XcxtzX3bqB074";
+	//Inicia o POST
+	xhr.open("POST", url, false);
+	//Insere informações no cabeçalho da chamada
+	xhr.setRequestHeader("Content-Type", "application/json");
+	//Atribui à variável 'data' o objeto JSON gerado
+	var data = JSON.stringify({"especie": especie, "local": local, "data": date, "id": id});
+	//Envia o POST
+	xhr.send(data);
+	refresh ();
+		function refresh ()
+	{
+		++tries;
+		if (tries < 5)
+			confirm();
+		else
+			window.alert("Erro de conexão");
+			document.getElementById("plantar").innerHTML="Plantar!";
+	}
+	
+	function confirm (){
+	//Se o status for igual à HTTP 200
+		if (xhr.status == 200 && xhr.readyState == 4) {
+			var response = xhr.response;
+			console.log(response);
+			if (response=="{}"){
+				window.alert("Plantio registrado com sucesso!");
+				document.getElementById("plantar").innerHTML="Plantar!";
+			}
+			else {
+				window.alert("Ops, algo deu errado");
+				document.getElementById("plantar").innerHTML="Plantar!";
+			}
+		}
+		else if (xhr.readyState != 4) {
+			refresh ();
+		}
+	}
+}
+</script>
+
+</body>
+</html>
