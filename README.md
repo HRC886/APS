@@ -18,3 +18,7 @@ Esse arquivo relata a inserção de árvores no sistema, onde os dados do usuár
 Página dedicada ao Sobre do Lignum. 
 Focada no desenvolvimento do Texto para explicar o lignum e a importancia do reflorestamento no Brasil. 
 Tanto o desenvolvimento quanto o texto foram desenvolvidos com este foco, de melhor explicar este caso.
+
+#Commit Backend
+
+Esse é o backend responsável por receber todas as chamadas API, trabalhar os dados e fazer a interação com o banco de dados SQL, fazendo Selects, Updates, Inserts e Deletes de acordo com o solicitado pela lógica no front-end
