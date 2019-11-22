@@ -1,0 +1,405 @@
+Cadastro:
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Compose": {
+                "inputs": "@triggerBody()?['Email_Login']",
+                "runAfter": {},
+                "type": "Compose"
+            },
+            "Compose_2": {
+                "inputs": "@body('Execute_a_SQL_query_(V2)')?['resultsets']",
+                "runAfter": {
+                    "Execute_a_SQL_query_(V2)": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Compose"
+            },
+            "Condition": {
+                "actions": {
+                    "Compose_3": {
+                        "inputs": "@body('Execute_a_SQL_query_(V2)_2')?['resultsets']",
+                        "runAfter": {
+                            "Execute_a_SQL_query_(V2)_2": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "Compose"
+                    },
+                    "Execute_a_SQL_query_(V2)_2": {
+                        "inputs": {
+                            "body": {
+                                "query": "select * from Plantio where Cod_Usu = (select cod_usu from usuario where email_login = '@{variables('Email_Login')}')"
+                            },
+                            "host": {
+                                "connection": {
+                                    "name": "@parameters('$connections')['sql']['connectionId']"
+                                }
+                            },
+                            "method": "post",
+                            "path": "/v2/datasets/@{encodeURIComponent(encodeURIComponent('default'))},@{encodeURIComponent(encodeURIComponent('default'))}/query/sql"
+                        },
+                        "runAfter": {},
+                        "type": "ApiConnection"
+                    },
+                    "Response": {
+                        "inputs": {
+                            "body": {
+                                "bool": "true",
+                                "response": "@{variables('QueryOutput')}"
+                            },
+                            "headers": {
+                                "Content-Type": "application/json"
+                            },
+                            "statusCode": 200
+                        },
+                        "kind": "Http",
+                        "runAfter": {
+                            "Set_variable": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "Response"
+                    },
+                    "Set_variable": {
+                        "inputs": {
+                            "name": "Response",
+                            "value": "@{outputs('Compose_3')}"
+                        },
+                        "runAfter": {
+                            "Compose_3": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "SetVariable"
+                    }
+                },
+                "else": {
+                    "actions": {
+                        "Execute_a_SQL_query_(V2)_3": {
+                            "inputs": {
+                                "body": {
+                                    "query": "insert into Usuario values ('@{variables('Email_Login')}');"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['sql']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/v2/datasets/@{encodeURIComponent(encodeURIComponent('default'))},@{encodeURIComponent(encodeURIComponent('default'))}/query/sql"
+                            },
+                            "runAfter": {},
+                            "type": "ApiConnection"
+                        },
+                        "Response_2": {
+                            "inputs": {
+                                "body": {
+                                    "bool": "true"
+                                },
+                                "headers": {
+                                    "Content-Type": "application/json"
+                                },
+                                "statusCode": 200
+                            },
+                            "kind": "Http",
+                            "runAfter": {
+                                "Execute_a_SQL_query_(V2)_3": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response"
+                        }
+                    }
+                },
+                "expression": {
+                    "and": [
+                        {
+                            "contains": [
+                                "@variables('QueryOutput')",
+                                "@variables('Email_Login')"
+                            ]
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_variable": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "If"
+            },
+            "Cria_e_Atribui_a_Variável": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "Email_Login",
+                            "type": "String",
+                            "value": "@{outputs('Compose')}"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_variable_2": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Execute_a_SQL_query_(V2)": {
+                "inputs": {
+                    "body": {
+                        "query": "select Cod_Usu,Email_Login from Usuario where Email_Login='@{variables('Email_Login')}'"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['sql']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/v2/datasets/@{encodeURIComponent(encodeURIComponent('default'))},@{encodeURIComponent(encodeURIComponent('default'))}/query/sql"
+                },
+                "runAfter": {
+                    "Cria_e_Atribui_a_Variável": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "Initialize_variable": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "QueryOutput",
+                            "type": "String",
+                            "value": "@{outputs('Compose_2')}"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Compose_2": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_2": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "Response",
+                            "type": "String"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Compose": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "manual": {
+                "inputs": {
+                    "schema": {
+                        "properties": {
+                            "Email_Login": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "kind": "Http",
+                "type": "Request"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "sql": {
+                    "connectionId": "/subscriptions/e9029ca9-cce5-4e27-bd06-8bdc1229faae/resourceGroups/APS/providers/Microsoft.Web/connections/sql",
+                    "connectionName": "sql",
+                    "id": "/subscriptions/e9029ca9-cce5-4e27-bd06-8bdc1229faae/providers/Microsoft.Web/locations/southcentralus/managedApis/sql"
+                }
+            }
+        }
+    }
+}
+
+QueryRunner
+
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Execute_a_SQL_query_(V2)": {
+                "inputs": {
+                    "body": {
+                        "query": "insert into Plantio(Especie_Arvore,Cidade,Data_Plantio,Cod_Usu)\nValues ('@{triggerBody()?['especie']}','@{triggerBody()?['local']}','@{triggerBody()?['data']}','@{triggerBody()?['id']}')"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['sql']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/v2/datasets/@{encodeURIComponent(encodeURIComponent('default'))},@{encodeURIComponent(encodeURIComponent('default'))}/query/sql"
+                },
+                "runAfter": {},
+                "type": "ApiConnection"
+            },
+            "Response": {
+                "inputs": {
+                    "body": "@body('Execute_a_SQL_query_(V2)')?['resultsets']",
+                    "headers": {
+                        "Content-Type": "application/json"
+                    },
+                    "statusCode": 200
+                },
+                "kind": "Http",
+                "runAfter": {
+                    "Execute_a_SQL_query_(V2)": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Response"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "manual": {
+                "inputs": {
+                    "schema": {
+                        "properties": {
+                            "data": {
+                                "type": "string"
+                            },
+                            "especie": {
+                                "type": "string"
+                            },
+                            "id": {
+                                "type": "string"
+                            },
+                            "local": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "kind": "Http",
+                "type": "Request"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "sql": {
+                    "connectionId": "/subscriptions/e9029ca9-cce5-4e27-bd06-8bdc1229faae/resourceGroups/APS/providers/Microsoft.Web/connections/sql",
+                    "connectionName": "sql",
+                    "id": "/subscriptions/e9029ca9-cce5-4e27-bd06-8bdc1229faae/providers/Microsoft.Web/locations/southcentralus/managedApis/sql"
+                }
+            }
+        }
+    }
+}
+
+Listagem
+
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Execute_a_SQL_query_(V2)": {
+                "inputs": {
+                    "body": {
+                        "query": "@triggerBody()?['query']"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['sql']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/v2/datasets/@{encodeURIComponent(encodeURIComponent('default'))},@{encodeURIComponent(encodeURIComponent('default'))}/query/sql"
+                },
+                "runAfter": {},
+                "type": "ApiConnection"
+            },
+            "Response": {
+                "inputs": {
+                    "body": "@body('Execute_a_SQL_query_(V2)')?['resultsets']",
+                    "headers": {
+                        "Content-Type": "application/json"
+                    },
+                    "statusCode": 200
+                },
+                "kind": "Http",
+                "runAfter": {
+                    "Execute_a_SQL_query_(V2)": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Response"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "manual": {
+                "inputs": {
+                    "schema": {
+                        "properties": {
+                            "query": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "kind": "Http",
+                "type": "Request"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "sql": {
+                    "connectionId": "/subscriptions/e9029ca9-cce5-4e27-bd06-8bdc1229faae/resourceGroups/APS/providers/Microsoft.Web/connections/sql",
+                    "connectionName": "sql",
+                    "id": "/subscriptions/e9029ca9-cce5-4e27-bd06-8bdc1229faae/providers/Microsoft.Web/locations/southcentralus/managedApis/sql"
+                }
+            }
+        }
+    }
+}
+
