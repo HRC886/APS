@@ -1,0 +1,76 @@
+<html>
+<head>
+<title>Lignum</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3pro.css">
+<link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-teal.css">
+<script src="logout.js"></script>
+<style>
+	.btn {
+		background-color:transparent;
+		color:white
+	}
+	
+	.btn:hover {
+		text-shadow: 3px 3px 10px white;
+		cursor:pointer;
+	}
+</style>
+</head>
+<!-- DENTRO DOS PARENTESES DO getUserInfo NO onload COLOCAR O NOME DA CATEGORIA >EM MINUSCULO< ENTRE ASPAS SIMPLES CONFORME EXEMPLO ABAIXO: -->
+<body>
+<nav class="w3-sidebar w3-bar-block w3-card w3-animate-left" id="mySidebar" style="width:100%;max-width:300px;display:none">
+<div class="w3-container">
+  <span onclick="closeSidebar()" class="w3-button w3-display-topright w3-xxlarge">&#9932;</span>
+  <br>
+  <div class="w3-padding w3-center">
+    <img class="w3-image w3-animate-top" width="50%" src="logo.png">
+  </div>
+</div>
+<h3><a class="w3-bar-item w3-button w3-border-bottom" href="registro.html">Novo Plantio</a></h3>
+<h3><a class="w3-bar-item w3-button w3-border-bottom" href="gerencia.html">Minha Floresta</a></h3>
+<h3><a class="w3-bar-item w3-button w3-border-bottom" href="sobre.html">Sobre</a></h3>
+<h3><a class="w3-bar-item w3-button" onclick="logout ()">Sair</a></h3>
+</nav>
+
+<header id="header" class="w3-bar w3-card w3-center" style="background-image:url('grass.jpg');background-repeat: no-repeat;background-size: cover;color:white">
+  <button class="w3-bar-item btn w3-xxlarge" onclick="openSidebar()">&#9776;</button>
+  <h3 class="w3-bar-item">Minha Floresta</h3>
+</header>
+<div id="all" style="width:100%">
+<script>
+	var height = screen.availHeight+"px";
+	document.getElementById('all').style.minHeight = height;
+</script>
+<div id="home" class="w3-container w3-animate-bottom" style="width:50%;margin-left:25%;margin-left:25%">
+<div><h3><center><b>Ajude a preservar a natureza!</b></center></h3></div>
+<div><h6><p align="justify">Preservar o meio ambiente é fundamental para manter a saúde do planeta e de todos os seres vivos que moram nele. Para celebrar o esforço em proteger os recursos naturais,
+A ecologia é a ciência que estuda as relações entre os seres vivos e os meios onde vivem.
+Os seres humanos só conseguem sobreviver graças à natureza. Afinal, usamos os animais e plantas para nos alimentar, água para beber e tomar banho, e muitos outros recursos que nem percebemos.
+Você já pensou que a cadeira onde sentamos é feita de madeira, que veio de uma árvore? Grande parte das roupas é feita de algodão, que também vem de uma planta.
+Proteger a natureza não é só cuidar da Mata Atlântica, mas sim preservar cada lugar por onde passamos e cada ser vivo que encontramos pelo caminho.
+Na luta para salvar o planeta, todos podem participar. Nunca é cedo nem tarde demais para fazer sua parte. Separar o lixo reciclável do orgânico (não reciclável) é uma medida rápida e simples que ajuda a diminuir em até 40% a quantidade de material que vai parar nos lixões.
+Uma latinha que se joga na rua, por exemplo, pode parecer apenas uma latinha. Mas, somada com outras, chega a entupir bueiros e causar enchentes. Por isso, se cada um ajudar um pouquinho, o planeta agradece de montão!</p align="justify"></h6></div>
+<p></p>
+</div>
+</div>
+  
+<script>
+function openSidebar() 
+{
+	//abre o menu lateral
+	document.getElementById("mySidebar").style.display = "block";
+	document.getElementById("all").onclick = function() { closeSidebar() };
+}
+
+function closeSidebar() 
+{
+	//fecha o menu lateral
+	document.getElementById("mySidebar").style.display = "none";
+	document.getElementById("all").onclick = function() { console.log("") };
+}
+
+</script>
+
+</body>
+</html>
