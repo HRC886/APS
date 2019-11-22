@@ -12,3 +12,9 @@ Neste módulo está a parte de cadastro da aplicação, que pede e-mail como val
 #Commit Plantio
 
 Esse arquivo relata a inserção de árvores no sistema, onde os dados do usuário está na memória local do sistema, para podermos distinguir qual usuário está realizando a operação, para a inserção das árvores, é necessário fornecer os seguintes dados: Nome da árvores, local onde a árvore será plantada, e a data do plantio.
+
+#Commit Sobre
+
+Página dedicada ao Sobre do Lignum. 
+Focada no desenvolvimento do Texto para explicar o lignum e a importancia do reflorestamento no Brasil. 
+Tanto o desenvolvimento quanto o texto foram desenvolvidos com este foco, de melhor explicar este caso.
